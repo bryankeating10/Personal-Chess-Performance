@@ -24,7 +24,7 @@ for archive_url in archives:
 
     # Extract year and month for filename
     parts = archive_url.rstrip("/").split("/")[-2:]
-    filename = f"{parts[0]}_{parts[1]}.pgn"
+    filename = f"{username}_{parts[0]}_{parts[1]}.pgn"
     filepath = os.path.join(save_folder, filename)
 
     print(f"Downloading {filename} ...")
