@@ -42,7 +42,7 @@ class MoveData:
 
                     # Extract clock and eval annotations if present
                     clock = None
-                    eval_cp = None
+                    eval = None
 
                     if node.comment:
                         import re
@@ -53,12 +53,12 @@ class MoveData:
                         if eval_match:
                             eval_str = eval_match.group(1)
                             if eval_str.startswith("#"):
-                                eval_cp = f"M{eval_str[1:]}"  # mate in N
+                                eval = f"M{eval_str[1:]}"  # mate in N
                             else:
                                 try:
-                                    eval_cp = float(eval_str)
+                                    eval = float(eval_str)
                                 except ValueError:
-                                    eval_cp = None
+                                    eval = None
 
                     # Apply move first, then get FEN after move
                     board.push(move)
@@ -71,7 +71,7 @@ class MoveData:
                         "color": color,
                         "move": san,
                         "clock": clock,
-                        "eval_cp": eval_cp,
+                        "eval": eval,
                         "uci": uci,
                         "fen": fen_after,
                     })
@@ -92,7 +92,7 @@ class MoveData:
         df.sort_values(by=["game_id", "ply"], inplace=True)
 
         # Reorder columns
-        desired_order = ["game_id", "ply", "color", "move", "clock", "eval_cp", "uci", "fen"]
+        desired_order = ["game_id", "ply", "color", "move", "clock", "eval", "uci", "fen"]
         df = df[desired_order]
 
         return df
