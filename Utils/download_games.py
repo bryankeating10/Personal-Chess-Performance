@@ -2,11 +2,13 @@ import os
 import requests
 
 def download_pgn(archive_url: str) -> str:
-    r = requests.get(archive_url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Chess PGN Downloader)"
+    }
+    r = requests.get(archive_url, headers=headers)
     r.raise_for_status()
     data = r.json()
-    pgn = data.get("pgn", "")
-    return pgn
+    return data.get("pgn", "")
 
 def download_archives(username: str, archive_urls: list[str], save_dir="data/raw"):
     user_dir = os.path.join(save_dir, username)

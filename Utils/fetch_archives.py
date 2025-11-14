@@ -2,12 +2,14 @@ import requests
 
 def fetch_archives(username: str) -> list[str]:
     url = f"https://api.chess.com/pub/player/{username}/games/archives"
-    r = requests.get(url)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Chess PGN Downloader)"
+    }
+    r = requests.get(url, headers=headers)
     r.raise_for_status()
     data = r.json()
 
-    archives = data.get("archives", [])
-    return archives
+    return data.get("archives", [])
 
 def main():
     username = input("Enter Chess.com username: ").strip()
