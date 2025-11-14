@@ -33,10 +33,6 @@ class MetaData:
                 headers["game_id"] = game_id
                 game_id += 1
 
-                # Add source tracking
-                headers["source_file"] = str(self.pgn_path)
-                headers["parsed_at"] = datetime.utcnow().isoformat()
-
                 self.metadata_list.append(headers)
 
     # ---------------------------------------------------------
