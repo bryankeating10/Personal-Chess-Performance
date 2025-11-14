@@ -1,3 +1,4 @@
+from pathlib import Path
 import requests
 from datetime import datetime
 from typing import List, Optional
@@ -6,6 +7,10 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Chess PGN Downloader)"
 }
 
+
+# -----------------------------
+# Archive Retrieval & Filtering
+# -----------------------------
 
 def fetch_archives(username: str) -> List[str]:
     """Fetch the list of monthly archive URLs for a Chess.com user."""
@@ -16,10 +21,11 @@ def fetch_archives(username: str) -> List[str]:
 
 
 def download_pgn(url: str) -> str:
-    """Download PGN text from an archive URL."""
-    r = requests.get(url, headers=HEADERS)
+    """Download raw PGN text for a monthly archive."""
+    pgn_url = url.rstrip("/") + "/pgn"   # safe trailing slash handling
+    r = requests.get(pgn_url, headers=HEADERS)
     r.raise_for_status()
-    return r.json().get("pgn", "")
+    return r.text
 
 
 def parse_year_month(s: str) -> datetime:
@@ -31,8 +37,8 @@ def filter_archives(archives: List[str],
                     start: Optional[str],
                     end: Optional[str]) -> List[str]:
     """Filter archive URLs within a given date range."""
-    if not start and not end:
-        return archives
+    if not archives:
+        return []
 
     dated_archives = []
     for url in archives:
@@ -41,8 +47,12 @@ def filter_archives(archives: List[str],
         dt = parse_year_month(f"{year}-{month}")
         dated_archives.append((dt, url))
 
-    start_dt = parse_year_month(start) if start else min(dt for dt, _ in dated_archives)
-    end_dt = parse_year_month(end) if end else max(dt for dt, _ in dated_archives)
+    # Ensure chronological order
+    dated_archives.sort(key=lambda x: x[0])
+
+    # Determine start and end boundaries
+    start_dt = parse_year_month(start) if start else dated_archives[0][0]
+    end_dt = parse_year_month(end) if end else dated_archives[-1][0]
 
     return [
         url for dt, url in dated_archives
@@ -50,32 +60,53 @@ def filter_archives(archives: List[str],
     ]
 
 
-def download_user_data(username: str,
-                       start: Optional[str] = None,
-                       end: Optional[str] = None,
-                       output: Optional[str] = None) -> str:
+# -----------------------------
+# Main Download Function
+# -----------------------------
+
+def download_user(username: str,
+                  start: Optional[str] = None,
+                  end: Optional[str] = None,
+                  output: Optional[str] = None) -> str:
     """
     Download combined PGN data for a user over a given date range.
 
-    Parameters
-    ----------
-    username : str
-        Chess.com username (case-insensitive)
-    start : str or None
-        Start date "YYYY-MM" (inclusive)
-    end : str or None
-        End date "YYYY-MM" (inclusive)
-    output : str or None
-        Output filename. Defaults to "{username}_data.pgn"
+    Writes output to the project's Data/PGN directory unless an absolute
+    `output` path is provided.
 
     Returns
     -------
-    str
-        Path to written PGN file.
+    str : path to written PGN file.
     """
     username = username.lower()
-    output_file = f"../Data/PGN/{output}" if output else f"../Data/PGN/{username}_data.pgn"
 
+    # Determine project root:
+    # <project_root>/Utils/download_user.py
+    project_root = Path(__file__).resolve().parents[1]
+
+    # Project PGN directory
+    pgn_dir = project_root / "Data" / "PGN"
+    pgn_dir.mkdir(parents=True, exist_ok=True)
+
+    # Determine output file
+    if output:
+        out_path = Path(output)
+        if out_path.is_absolute():        # Absolute path → use directly
+            final_path = out_path
+            final_path.parent.mkdir(parents=True, exist_ok=True)
+        else:                              # Relative path → under Data/PGN
+            final_path = pgn_dir / out_path
+            final_path.parent.mkdir(parents=True, exist_ok=True)
+    else:
+        final_path = pgn_dir / f"{username}_data.pgn"
+
+    # Enforce .pgn extension
+    if final_path.suffix.lower() != ".pgn":
+        final_path = final_path.with_suffix(".pgn")
+
+    # --------------------
+    # Fetch and filter
+    # --------------------
     print(f"Fetching archives for: {username}")
     archives = fetch_archives(username)
 
@@ -88,17 +119,31 @@ def download_user_data(username: str,
     if not selected:
         raise ValueError("No archives match the selected date range.")
 
-    print(f"Downloading {len(selected)} archives...")
+    print(f"Selected {len(selected)} archive(s):")
+    for u in selected:
+        print("  →", u)
+
+    # --------------------
+    # Download PGN
+    # --------------------
+    print(f"\nDownloading {len(selected)} archives...")
     all_pgn = []
+
     for url in selected:
-        print(f" → {url}")
+        print(f" → Downloading {url}")
         pgn = download_pgn(url)
-        if pgn:
+        if pgn.strip():
             all_pgn.append(pgn)
 
-    print(f"Saving PGN to {output_file}...")
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write("\n\n".join(all_pgn))
+    # --------------------
+    # Save output
+    # --------------------
+    print(f"\nSaving PGN to {final_path}...")
+    # Ensure final newline for parser compatibility
+    content = "\n\n".join(all_pgn).rstrip() + "\n"
+
+    with open(final_path, "w", encoding="utf-8") as f:
+        f.write(content)
 
     print("Done.")
-    return output_file
+    return str(final_path)
