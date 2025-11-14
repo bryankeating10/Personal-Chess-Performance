@@ -1,0 +1,8 @@
+pandas
+duckdb
+python-chess
+jupyterlab
+matplotlib
+numpy
+seaborn
+scipy
