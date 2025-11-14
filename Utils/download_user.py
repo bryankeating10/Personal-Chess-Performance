@@ -113,7 +113,7 @@ def download_user(username: str,
     if not archives:
         raise ValueError("No Chess.com archives found for this user.")
 
-    print("Filtering archives...")
+    print("Filtering archives in selected date range...")
     selected = filter_archives(archives, start, end)
 
     if not selected:
@@ -136,7 +136,6 @@ def download_user(username: str,
         pgn = download_pgn(url)
         if pgn.strip():
             all_pgn.append(pgn)
-
 
     # --------------------
     # Save output
