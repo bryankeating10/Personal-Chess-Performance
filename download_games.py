@@ -3,7 +3,7 @@ import os
 
 # === CONFIG ===
 username = "bkchessmaster2"          # Your Chess.com username (lowercase)
-save_folder = "games"          # Folder to save PGN files
+save_folder = "Data/Raw"          # Folder to save PGN files
 os.makedirs(save_folder, exist_ok=True)
 
 # Set a proper User-Agent
@@ -34,5 +34,6 @@ for archive_url in archives:
             f.write(r.text)
     else:
         print(f"Failed to download {filename}, status code {r.status_code}")
+    break
 
 print("All downloads complete!")
