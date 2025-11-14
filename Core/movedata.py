@@ -70,10 +70,10 @@ class MoveData:
                         "ply": ply,
                         "color": color,
                         "move": san,
-                        "uci": uci,
-                        "fen": fen_after,
                         "clock": clock,
                         "eval_cp": eval_cp,
+                        "uci": uci,
+                        "fen": fen_after,
                     })
 
                     ply += 1
@@ -82,7 +82,7 @@ class MoveData:
 
     # ---------------------------------------------------------
     def to_dataframe(self) -> pd.DataFrame:
-        """Convert collected move records into a DataFrame."""
+        """Convert collected move records into a DataFrame with ordered columns."""
         if not self.moves_list:
             return pd.DataFrame()
 
@@ -90,5 +90,9 @@ class MoveData:
 
         # Sorting ensures stable ordering
         df.sort_values(by=["game_id", "ply"], inplace=True)
+
+        # Reorder columns
+        desired_order = ["game_id", "ply", "color", "move", "clock", "eval_cp", "uci", "fen"]
+        df = df[desired_order]
 
         return df
