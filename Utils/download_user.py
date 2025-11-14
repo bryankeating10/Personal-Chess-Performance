@@ -119,7 +119,7 @@ def download_user(username: str,
     if not selected:
         raise ValueError("No archives match the selected date range.")
 
-    print(f"Selected {len(selected)} archive(s):")
+    print(f"Selected {len(selected)} archives:")
     for u in selected:
         print("  →", u)
 
@@ -130,15 +130,18 @@ def download_user(username: str,
     all_pgn = []
 
     for url in selected:
-        print(f" → Downloading {url}")
+        url_str = str(url)  # ensure it's a string
+        last7 = url_str[-7:]  # get last 7 characters
+        print(f"  → Downloading {last7}")
         pgn = download_pgn(url)
         if pgn.strip():
             all_pgn.append(pgn)
 
+
     # --------------------
     # Save output
     # --------------------
-    print(f"\nSaving PGN to {final_path}...")
+    print(f"\nSaving PGN...")
     # Ensure final newline for parser compatibility
     content = "\n\n".join(all_pgn).rstrip() + "\n"
 
@@ -146,4 +149,3 @@ def download_user(username: str,
         f.write(content)
 
     print("Done.")
-    return str(final_path)
