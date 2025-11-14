@@ -3,7 +3,7 @@ version: "3.9"
 services:
   chess-ml:
     build: .
-    container_name: chess-ml-analysis
+    container_name: Personal-Chess-Performance
     volumes:
       - ./Data:/app/Data       # mount host Data folder into container
     ports:
