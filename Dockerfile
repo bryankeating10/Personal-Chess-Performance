@@ -7,6 +7,7 @@ WORKDIR /app
 # Install system dependencies (including Stockfish!)
 RUN apt-get update && apt-get install -y \
     stockfish \
+    && ln -s /usr/games/stockfish /usr/bin/stockfish \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for caching
@@ -18,5 +19,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the project
 COPY . .
 
-# Set default command
+# Default command
 CMD ["python3"]
