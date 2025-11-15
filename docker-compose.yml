@@ -1,13 +1,11 @@
 version: "3.9"
 
 services:
-  chess:
+  personal-chess-performance:
     build: .
-    container_name: chess-dev
-    working_dir: /app
+    container_name: Personal-Chess-Performance
     volumes:
-      - ./:/app
+      - ./Data:/app/Data       # mount host Data folder into container
     ports:
-      - "8888:8888"
-    command: >
-      jupyter lab --ip=0.0.0.0 --no-browser --allow-root
+      - "8888:8888"            # optional, for Jupyter notebooks
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
