@@ -22,9 +22,6 @@ def add_engine_eval(df_moves: pd.DataFrame, engine_path: str, depth: int = 15):
     if "eval" not in df.columns:
         df["eval"] = None
 
-    # Add stockfish column (may be useful for comparison)
-    df["eval_stockfish"] = None
-
     seen_game = None
     board = None
 
@@ -51,9 +48,6 @@ def add_engine_eval(df_moves: pd.DataFrame, engine_path: str, depth: int = 15):
             new_eval = f"M{pov.mate()}"
         else:
             new_eval = pov.score()  # integer centipawn
-
-        # Always add raw Stockfish eval
-        df.at[idx, "eval_stockfish"] = new_eval
 
         # Existing eval?
         current_eval = row["eval"]
