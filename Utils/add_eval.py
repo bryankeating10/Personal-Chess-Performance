@@ -14,7 +14,7 @@ def add_engine_eval(df_moves: pd.DataFrame, engine_path: str, depth: int = 15):
 
     - If original eval exists → keep it
     - If eval is None/NaN → fill with Stockfish
-    - Prints progress every 100 games with ETA
+    - Prints progress every 10 games with ETA
     """
 
     engine = chess.engine.SimpleEngine.popen_uci(engine_path)
@@ -41,7 +41,7 @@ def add_engine_eval(df_moves: pd.DataFrame, engine_path: str, depth: int = 15):
             games_processed += 1
 
             # Print progress every 100 games
-            if games_processed % 100 == 0 or games_processed == total_games:
+            if games_processed % 10 == 0 or games_processed == total_games:
                 elapsed = time.time() - start_time
                 avg_per_game = elapsed / games_processed
                 remaining_games = total_games - games_processed
