@@ -8,7 +8,7 @@ def clean_moves(df_moves: pd.DataFrame) -> pd.DataFrame:
     Steps:
     - Ensure ply is integer
     - Color as category
-    - eval_cp as float if possible, else leave mate string
+    - eval as float if possible, else leave mate string
     - Convert clock to seconds
     """
     df = df_moves.copy()
@@ -17,7 +17,7 @@ def clean_moves(df_moves: pd.DataFrame) -> pd.DataFrame:
     df["ply"] = df["ply"].astype(int)
     df["color"] = df["color"].astype("category")
 
-    # Convert eval_cp to numeric if possible
+    # Convert eval to numeric if possible
     def parse_eval(x):
         if pd.isna(x):
             return None
@@ -28,7 +28,7 @@ def clean_moves(df_moves: pd.DataFrame) -> pd.DataFrame:
         except:
             return None
 
-    df["eval_cp"] = df["eval_cp"].apply(parse_eval)
+    df["eval"] = df["eval"].apply(parse_eval)
 
     # Convert clock to seconds
     def clock_to_sec(clk):
