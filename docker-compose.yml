@@ -1,11 +1,15 @@
 version: "3.9"
 
 services:
-  personal-chess-performance:
+  chess:
     build: .
-    container_name: Personal-Chess-Performance
+    container_name: chess_container
+    image: personal-chess-performance:latest
     volumes:
-      - ./Data:/app/Data       # mount host Data folder into container
+      - ./data-volume:/app/Data       # mount host Data folder into container
     ports:
       - "8888:8888"            # optional, for Jupyter notebooks
     command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+
+volumes:
+  data-volume:
